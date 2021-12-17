@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -26,15 +28,19 @@ class LightSystemsActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       val navController = rememberNavController()
-      MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          NavHost(navController, startDestination = "listModels") {
-            composable("listModels") {
-              val models by modelsViewModel.models.observeAsState()
-              ListModels(models, navController)
-            }
-            composable("newModel") {
-              NewModel(navController)
+      CompositionLocalProvider(
+        LocalNavigator provides navController
+      ) {
+        MaterialTheme {
+          Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            NavHost(navController, startDestination = "listModels") {
+              composable("listModels") {
+                val models by modelsViewModel.models.observeAsState()
+                ListModels(models)
+              }
+              composable("newModel") {
+                NewModel()
+              }
             }
           }
         }
@@ -43,5 +49,6 @@ class LightSystemsActivity : ComponentActivity() {
   }
 }
 
-fun NavController.navigateToListModels() { navigate("listModels") }
 fun NavController.navigateToNewModel() { navigate("newModel") }
+
+val LocalNavigator = compositionLocalOf<NavController?> { null }

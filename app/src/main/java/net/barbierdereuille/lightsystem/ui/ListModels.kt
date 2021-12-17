@@ -27,17 +27,18 @@ import net.barbierdereuille.lightsystem.R
 import net.barbierdereuille.lightsystem.data.Model
 
 @Composable
-fun ListModels(models: List<Model>?, navController: NavController? = null) {
+fun ListModels(models: List<Model>?) {
   if(models == null) {
     ShowNoModels()
   } else {
-    ShowModels(models, navController)
+    ShowModels(models)
   }
 }
 
 @Composable
 private fun ShowModels(models: List<Model>, navController: NavController? = null) {
   Page(stringResource(id = R.string.list_models_title)) {
+    val navController = LocalNavigator.current
     Box(modifier = Modifier.fillMaxSize()) {
       Column(
         modifier = Modifier

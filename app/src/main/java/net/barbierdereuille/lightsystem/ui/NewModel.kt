@@ -20,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import net.barbierdereuille.lightsystem.R
 import net.barbierdereuille.lightsystem.workers.NewModelWorker
 
 @Composable
-fun NewModel(navController: NavController? = null) {
+fun NewModel() {
   Page("New Model") {
+    val navController = LocalNavigator.current
     var modelName by rememberSaveable { mutableStateOf("My Model") }
     var modelAxiom by rememberSaveable { mutableStateOf("A") }
     val context = LocalContext.current
