@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">LightSystems</string>
+  <string name="new_model_title">New Model</string>
+  <string name="new_model_name">Model Name</string>
+  <string name="new_model_axiom">Axiom</string>
+  <string name="list_models_title">LightSystem Models</string>
 </resources>

@@ -30,6 +30,12 @@ interface ModelDao {
   @Delete
   fun delete(rule: RuleDefinition)
 
+  @Query("DELETE FROM models")
+  fun deleteAllModels()
+
+  @Query("DELETE FROM rules")
+  fun deleteAllRules()
+
 //  @Query("SELECT * from models WHERE id = :modelId ")
 //  fun findModel(modelId: Long): Map<ModelDescription, List<RuleDefinition>>
 

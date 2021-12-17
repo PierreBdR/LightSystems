@@ -2,34 +2,34 @@ package net.barbierdereuille.lightsystem.workers
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import androidx.work.workDataOf
+import dagger.Lazy
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import net.barbierdereuille.lightsystem.LightSystemsTag
 import net.barbierdereuille.lightsystem.data.Model
-import net.barbierdereuille.lightsystem.data.ModelDatabase
+import net.barbierdereuille.lightsystem.data.Repository
 import net.barbierdereuille.lightsystem.data.rules
 
-class SeedDatabaseWorker(
-  private val context: Context,
-  workerParameters: WorkerParameters
+@HiltWorker
+class SeedDatabaseWorker @AssistedInject constructor(
+  @Assisted context: Context,
+  @Assisted workerParameters: WorkerParameters,
+  private val repository: Lazy<Repository>,
 ) : CoroutineWorker(context, workerParameters) {
-  @EntryPoint
-  @InstallIn(SingletonComponent::class)
-  interface HiltEntryPoint {
-    val modelDb: ModelDatabase
-  }
 
   override suspend fun doWork(): Result {
     try {
-      val appContext =
-        checkNotNull(context.applicationContext) { "The context must have an application context" }
-      val modelDb =
-        EntryPointAccessors.fromApplication(appContext, HiltEntryPoint::class.java).modelDb
-      modelDb.addModel(
+      val repo = repository.get()
+      if(inputData.getBoolean(RESET_DB, false)) {
+        repo.clearAll()
+      }
+      repo.addModel(
         Model(
           name = "Anabeana",
           axiom = "R",
@@ -46,5 +46,17 @@ class SeedDatabaseWorker(
       return Result.failure()
     }
     return Result.success()
+  }
+
+  companion object {
+    private const val RESET_DB = "RESET_DB"
+    private fun createRequest(reset: Boolean) =
+      OneTimeWorkRequestBuilder<SeedDatabaseWorker>()
+        .setInputData(workDataOf(RESET_DB to reset))
+        .build()
+
+    fun execute(context: Context, reset: Boolean = false) =
+      WorkManager.getInstance(checkNotNull(context.applicationContext))
+        .enqueue(createRequest(reset))
   }
 }
