@@ -13,6 +13,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import net.barbierdereuille.lightsystem.LightSystemsTag
 import net.barbierdereuille.lightsystem.data.Model
+import net.barbierdereuille.lightsystem.data.ModelDao
+import net.barbierdereuille.lightsystem.data.ModelDatabase
 import net.barbierdereuille.lightsystem.data.Repository
 import net.barbierdereuille.lightsystem.data.rules
 
@@ -20,16 +22,15 @@ import net.barbierdereuille.lightsystem.data.rules
 class SeedDatabaseWorker @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted workerParameters: WorkerParameters,
-  private val repository: Lazy<Repository>,
+  private val repository: Repository,
 ) : CoroutineWorker(context, workerParameters) {
 
   override suspend fun doWork(): Result {
     try {
-      val repo = repository.get()
       if(inputData.getBoolean(RESET_DB, false)) {
-        repo.clearAll()
+        repository.clearAll()
       }
-      repo.addModel(
+      repository.addModel(
         Model(
           name = "Anabeana",
           axiom = "R",

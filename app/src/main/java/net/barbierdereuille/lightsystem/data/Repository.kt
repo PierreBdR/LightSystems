@@ -1,12 +1,10 @@
 package net.barbierdereuille.lightsystem.data
 
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-@Singleton
-class Repository @Inject internal constructor(
+class Repository @Inject constructor(
   private val modelDao: ModelDao
 ) {
   fun clearAll() {
