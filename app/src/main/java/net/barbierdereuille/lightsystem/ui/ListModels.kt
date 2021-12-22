@@ -1,6 +1,7 @@
 package net.barbierdereuille.lightsystem.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,7 @@ fun ListModels(models: List<Model>?) {
 }
 
 @Composable
-private fun ShowModels(models: List<Model>, navController: NavController? = null) {
+private fun ShowModels(models: List<Model>) {
   Page(stringResource(id = R.string.list_models_title)) {
     val navController = LocalNavigator.current
     Box(modifier = Modifier.fillMaxSize()) {
@@ -82,10 +83,12 @@ private fun ShowModels(models: List<Model>, navController: NavController? = null
 
 @Composable
 private fun ShowModel(model: Model) {
+  val navController = LocalNavigator.current
   Row(
     modifier = Modifier
       .fillMaxWidth()
       .padding(8.dp)
+      .clickable { navController?.navigateToEditModel(model.id) }
   ) {
     Text(model.name)
   }

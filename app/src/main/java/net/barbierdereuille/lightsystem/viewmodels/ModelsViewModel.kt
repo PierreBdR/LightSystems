@@ -9,6 +9,8 @@ import net.barbierdereuille.lightsystem.data.Model
 import net.barbierdereuille.lightsystem.data.Repository
 
 @HiltViewModel
-class ModelsViewModel @Inject internal constructor(repository: Repository) : ViewModel() {
+class ModelsViewModel @Inject internal constructor(private val repository: Repository) : ViewModel() {
   val models: LiveData<List<Model>> = repository.allModels().asLiveData()
+
+  fun resolvedModel(modelId: Long) = repository.resolveModel(modelId).asLiveData()
 }

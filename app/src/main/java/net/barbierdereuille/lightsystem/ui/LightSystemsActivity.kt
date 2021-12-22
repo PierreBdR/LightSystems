@@ -1,6 +1,7 @@
 package net.barbierdereuille.lightsystem.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -13,10 +14,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import net.barbierdereuille.lightsystem.LightSystemsTag
 import net.barbierdereuille.lightsystem.viewmodels.ModelsViewModel
 
 @AndroidEntryPoint
@@ -41,6 +45,14 @@ class LightSystemsActivity : ComponentActivity() {
               composable("newModel") {
                 NewModel()
               }
+              composable(
+                "editModel/{modelId}",
+                arguments = listOf(navArgument("modelId") { type = NavType.LongType })
+              ) { backStackEntry ->
+                val model by modelsViewModel.resolvedModel(backStackEntry.arguments?.getLong("modelId")!!)
+                  .observeAsState()
+                EditModel(model)
+              }
             }
           }
         }
@@ -49,6 +61,12 @@ class LightSystemsActivity : ComponentActivity() {
   }
 }
 
-fun NavController.navigateToNewModel() { navigate("newModel") }
+fun NavController.navigateToNewModel() {
+  navigate("newModel")
+}
+
+fun NavController.navigateToEditModel(modelId: Long) {
+  navigate("editModel/$modelId")
+}
 
 val LocalNavigator = compositionLocalOf<NavController?> { null }

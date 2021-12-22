@@ -21,16 +21,30 @@ data class ModelDescription(
 fun Model.toDb() = ModelDescription(id = id, name = name, axiom = axiom)
 
 @Entity(
-  tableName = "rules",
-//  foreignKeys = [ForeignKey(
-//    entity = ModelDescription::class,
-//    parentColumns = ["id"],
-//    childColumns = ["model_id"]
-//  )]
+  tableName = "model_rules",
+  primaryKeys = ["model_id", "order"],
+  foreignKeys = [
+    ForeignKey(
+      entity = ModelDescription::class,
+      parentColumns = ["id"],
+      childColumns = ["model_id"],
+    ),
+    ForeignKey(
+      entity = RuleDefinition::class,
+      parentColumns = ["id"],
+      childColumns = ["rule_id"],
+    ),
+  ]
 )
+data class ModelRules(
+  @ColumnInfo(name = "model_id") val modelId: Long,
+  @ColumnInfo(name = "rule_id") val ruleId: Long,
+  val order: Int,
+)
+
+@Entity(tableName = "rules")
 data class RuleDefinition(
   @PrimaryKey(autoGenerate = true) val id: Long,
-  @ColumnInfo(name = "model_id") val modelId: Long,
   val lhs: String?,
   val rhs: String?,
 ) {
@@ -42,4 +56,4 @@ data class RuleDefinition(
     )
 }
 
-fun Rule.toDb(modelId: Long) = RuleDefinition(id = id, modelId = modelId, lhs = lhs, rhs = rhs)
+fun Rule.toDb() = RuleDefinition(id = id, lhs = lhs, rhs = rhs)
