@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -30,7 +32,7 @@ class SeedDatabaseWorker @AssistedInject constructor(
       if(inputData.getBoolean(RESET_DB, false)) {
         repository.clearAll()
       }
-      repository.addModel(
+      listOf(
         Model(
           name = "Anabeana",
           axiom = "R",
@@ -40,8 +42,20 @@ class SeedDatabaseWorker @AssistedInject constructor(
             "R" to "Lr",
             "L" to "lR",
           ),
-        )
-      )
+        ),
+        Model(
+          name = "RuleTest",
+          axiom = "SOME TexT",
+          rules = rules(
+            "sh" to "Some rules",
+            "longer" to "fine",
+            "norm" to "Some very long text that should fit in more than one line",
+          )
+        ),
+      ).forEach {
+        Log.i(LightSystemsTag, "Adding ${it.name}")
+        repository.addModel(it)
+      }
     } catch (t: Throwable) {
       Log.e(LightSystemsTag, "Error seeding database", t)
       return Result.failure()
@@ -54,10 +68,11 @@ class SeedDatabaseWorker @AssistedInject constructor(
     private fun createRequest(reset: Boolean) =
       OneTimeWorkRequestBuilder<SeedDatabaseWorker>()
         .setInputData(workDataOf(RESET_DB to reset))
+        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .build()
 
     fun execute(context: Context, reset: Boolean = false) =
       WorkManager.getInstance(checkNotNull(context.applicationContext))
-        .enqueue(createRequest(reset))
+        .enqueueUniqueWork("resetDb", ExistingWorkPolicy.KEEP, createRequest(reset))
   }
 }

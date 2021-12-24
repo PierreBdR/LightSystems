@@ -5,4 +5,8 @@
   <string name="new_model_name">Model Name</string>
   <string name="new_model_axiom">Axiom</string>
   <string name="list_models_title">LightSystem Models</string>
+  <string name="loading_models">Loading models…</string>
+  <string name="loading_model">Loading model…</string>
+  <string name="no_models">Empty model list</string>
+  <string name="no_rules">No rules</string>
 </resources>

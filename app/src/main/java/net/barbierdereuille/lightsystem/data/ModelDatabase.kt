@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +14,7 @@ import javax.inject.Singleton
 import net.barbierdereuille.lightsystem.workers.SeedDatabaseWorker
 
 @Database(
-  entities = [ModelDescription::class, RuleDefinition::class, ModelRules::class],
+  entities = [ModelDescription::class, RuleDefinition::class, ModelRule::class],
   version = 1,
   exportSchema = false
 )

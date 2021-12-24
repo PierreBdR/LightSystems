@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import net.barbierdereuille.lightsystem.LightSystemsTag
+import net.barbierdereuille.lightsystem.data.Model
 import net.barbierdereuille.lightsystem.viewmodels.ModelsViewModel
 
 @AndroidEntryPoint
@@ -43,7 +44,7 @@ class LightSystemsActivity : ComponentActivity() {
                 ListModels(models)
               }
               composable("newModel") {
-                NewModel()
+                EditModel(Model(name = "New Model", axiom = "A", rules = emptyList()))
               }
               composable(
                 "editModel/{modelId}",
@@ -68,5 +69,8 @@ fun NavController.navigateToNewModel() {
 fun NavController.navigateToEditModel(modelId: Long) {
   navigate("editModel/$modelId")
 }
+
+fun NavController.isAtRoot(): Boolean =
+  currentDestination?.id == graph.startDestinationId
 
 val LocalNavigator = compositionLocalOf<NavController?> { null }

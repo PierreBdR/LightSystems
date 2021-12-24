@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -15,7 +17,7 @@ import net.barbierdereuille.lightsystem.data.Model
 import net.barbierdereuille.lightsystem.data.Repository
 
 @HiltWorker
-class NewModelWorker @AssistedInject constructor(
+class DeleteModelWorker @AssistedInject constructor(
   @Assisted context: Context,
   @Assisted workerParameters: WorkerParameters,
   private val repository: Repository,
@@ -23,9 +25,9 @@ class NewModelWorker @AssistedInject constructor(
 
   override suspend fun doWork(): Result =
     try {
-      val modelName = checkNotNull(inputData.getString(MODEL_NAME))
-      val modelAxiom = checkNotNull(inputData.getString(MODEL_AXIOM))
-      repository.addModel(Model(name = modelName, axiom = modelAxiom, rules = emptyList()))
+      val modelId = checkNotNull(inputData.getLong(MODEL_ID, Model.NO_ID))
+      Log.i(LightSystemsTag, "Deleting model $modelId")
+      repository.deleteModel(modelId)
       Result.success()
     } catch (t: Throwable) {
       Log.e(LightSystemsTag, "Error adding model to database", t)
@@ -33,16 +35,16 @@ class NewModelWorker @AssistedInject constructor(
     }
 
   companion object {
-    const val MODEL_NAME = "MODEL_NAME"
-    const val MODEL_AXIOM = "MODEL_AXIOM"
+    const val MODEL_ID = "MODEL_ID"
 
-    private fun createRequest(name: String, axiom: String) =
-      OneTimeWorkRequestBuilder<NewModelWorker>()
-        .setInputData(workDataOf(MODEL_NAME to name, MODEL_AXIOM to axiom))
+    private fun createRequest(model: Model) =
+      OneTimeWorkRequestBuilder<DeleteModelWorker>()
+        .setInputData(workDataOf(MODEL_ID to model.id))
+        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .build()
 
-    fun execute(context: Context, name: String, axiom: String) =
+    fun execute(context: Context, model: Model) =
       WorkManager.getInstance(checkNotNull(context.applicationContext))
-        .enqueue(createRequest(name, axiom))
+        .enqueueUniqueWork("deleteModel-${model.id}", ExistingWorkPolicy.KEEP, createRequest(model))
   }
 }

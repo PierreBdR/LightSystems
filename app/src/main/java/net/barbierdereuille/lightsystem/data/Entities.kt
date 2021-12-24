@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "models")
 data class ModelDescription(
   @PrimaryKey(autoGenerate = true) val id: Long,
-  val name: String?,
-  val axiom: String?,
+  val name: String? = null,
+  val axiom: String? = null,
 ) {
   fun toModel() = Model(
     id = id,
@@ -36,7 +36,7 @@ fun Model.toDb() = ModelDescription(id = id, name = name, axiom = axiom)
     ),
   ]
 )
-data class ModelRules(
+data class ModelRule(
   @ColumnInfo(name = "model_id") val modelId: Long,
   @ColumnInfo(name = "rule_id") val ruleId: Long,
   val order: Int,
@@ -45,8 +45,8 @@ data class ModelRules(
 @Entity(tableName = "rules")
 data class RuleDefinition(
   @PrimaryKey(autoGenerate = true) val id: Long,
-  val lhs: String?,
-  val rhs: String?,
+  val lhs: String? = null,
+  val rhs: String? = null,
 ) {
   fun toRule() =
     Rule(
