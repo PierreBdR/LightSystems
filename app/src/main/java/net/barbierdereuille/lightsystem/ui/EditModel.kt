@@ -2,6 +2,7 @@ package net.barbierdereuille.lightsystem.ui
 
 import android.util.Log
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
@@ -184,7 +186,7 @@ private fun ShowRules(
         val leftHeight = listOf(delete, lhs, arrow).maxOf { it.height }
         delete.placeRelative(x = 0, y = yPosition + (leftHeight - lhs.height) / 2)
         lhs.placeRelative(
-          x = deleteWidth + lhsWidth - lhs.width,
+          x = deleteWidth,
           y = yPosition + (leftHeight - lhs.height) / 2
         )
         arrow.placeRelative(
@@ -241,16 +243,16 @@ private fun RulePart(
   var model by modelState
   val layoutId = ruleItem.type.name
   val index = ruleItem.index
-  val textAlign = if(ruleItem.type == Rule.Part.LHS) TextAlign.End else TextAlign.Start
   Box(
     modifier = Modifier
       .layoutId(layoutId)
-      .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+      .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+      .animateContentSize(),
     contentAlignment = Alignment.Center,
   ) {
-    TextField(
+    BasicTextField(
       value = value,
-      singleLine = true,
+      singleLine = ruleItem.type == Rule.Part.LHS,
       onValueChange = {
         val rules = model.rules!!
         model = model.copy(
