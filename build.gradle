@@ -2,10 +2,12 @@ buildscript {
     ext {
         composeVersion = '1.1.0-rc01'
         daggerVersion = '2.38.1'
+        protoBufferVersion = '3.19.1'
     }
 
     dependencies {
         classpath "com.google.dagger:hilt-android-gradle-plugin:$daggerVersion"
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.18"
     }
 }
 

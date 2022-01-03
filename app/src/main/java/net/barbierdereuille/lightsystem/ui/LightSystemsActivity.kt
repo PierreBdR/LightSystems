@@ -1,7 +1,6 @@
 package net.barbierdereuille.lightsystem.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,7 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
-import net.barbierdereuille.lightsystem.LightSystemsTag
 import net.barbierdereuille.lightsystem.data.Model
 import net.barbierdereuille.lightsystem.viewmodels.ModelsViewModel
 
@@ -42,9 +40,9 @@ class LightSystemsActivity : ComponentActivity() {
               composable("listModels") {
                 val models by modelsViewModel.models.observeAsState()
                 ListModels(models)
-              }
+              }/*
               composable("newModel") {
-                EditModel(Model(name = "New Model", axiom = "A", rules = emptyList()))
+                EditModel(Model(name = "New Model", start = "A", rules = emptyList()))
               }
               composable(
                 "editModel/{modelId}",
@@ -53,7 +51,7 @@ class LightSystemsActivity : ComponentActivity() {
                 val model by modelsViewModel.resolvedModel(backStackEntry.arguments?.getLong("modelId")!!)
                   .observeAsState()
                 EditModel(model)
-              }
+              }*/
             }
           }
         }

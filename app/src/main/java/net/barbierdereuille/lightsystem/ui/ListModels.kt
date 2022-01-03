@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import net.barbierdereuille.lightsystem.R
 import net.barbierdereuille.lightsystem.data.Model
 
@@ -142,6 +141,7 @@ private fun ShowLoadingPreview() {
   }
 }
 
+/*
 @Preview(showBackground = true, heightDp = 350, widthDp = 250)
 @Composable
 private fun ShowModelsPreview() {
@@ -149,9 +149,9 @@ private fun ShowModelsPreview() {
     Surface(color = MaterialTheme.colorScheme.background) {
       ListModels(
         listOf(
-          Model(name = "model 1", id = 1, axiom = "L"),
-          Model(name = "model 2", id = 2, axiom = "R"),
-          Model(name = "model 3", id = 3, axiom = "A"),
+          Model(name = "model 1", id = 1, start = "L"),
+          Model(name = "model 2", id = 2, start = "R"),
+          Model(name = "model 3", id = 3, start = "A"),
         )
       )
     }
@@ -167,3 +167,4 @@ private fun ShowModelsEmptyPreview() {
     }
   }
 }
+*/

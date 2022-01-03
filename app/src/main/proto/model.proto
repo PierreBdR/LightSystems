@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package net.barbierdereuille.lightsystem.proto;
+
+option java_multiple_files = true;
+
+// Main representation of the model
+message Model {
+  string name = 1;
+  repeated Symbol symbols = 2;
+  repeated ResolvedSymbol start = 3;
+  repeated Rule rules = 4;
+}
+
+// L-System symbol
+message Symbol {
+  // Id of the symbol
+  int32 id = 1;
+  // Name of the symbol
+  string name = 2;
+  // Number of parameters for the symbol
+  int32 arity = 3;
+}
+
+// A symbol with all parameters resolved
+message ResolvedSymbol {
+  // Id of the symbol
+  int32 symbol_id = 1;
+  // Parameters for the symbol
+  repeated double parameters = 2;
+}
+
+// A symbol with bound variables or resolved parameters
+message BoundSymbol {
+  // Id of the symbol
+  int32 symbol_id = 1;
+  // Parameters for the symbol
+  repeated BoundParameter parameters = 2;
+}
+
+message BoundParameter {
+  oneof binding {
+    // Resolved value
+    double value = 1;
+    // Bound variable
+    int32 variable = 2;
+    // If this is still a placeholder
+    bool is_placeholder = 3;
+  }
+}
+
+// Symbol with a matching variable for their parameters
+message MatchingSymbol {
+  // Id of the symbol
+  int32 symbol_id = 1;
+  // List of variables used to store the matched values
+  repeated int32 variables = 2;
+}
+
+// L-System rule
+message Rule {
+  repeated MatchingSymbol lhs = 1;
+  repeated MatchingSymbol left_context = 2;
+  repeated MatchingSymbol right_context = 3;
+  repeated string variables = 4;
+  Expression condition = 5;
+  repeated Assignment block = 6;
+  repeated BoundSymbol rhs = 7;
+}
+
+// Next id: 17
+enum Function {
+  UNKNOWN_FUNCTION = 0;
+  EQUAL = 1;
+  DIFFERENT = 2;
+  GREATER_THAN = 3;
+  LESS_THAN = 4;
+  GREATER_OR_EQUAL = 5;
+  LESS_OR_EQUAL = 6;
+  AND = 7;
+  OR = 8;
+  NOT = 9;
+  ADD = 10;
+  SUBTRACT = 11;
+  MULTIPLY = 12;
+  DIVIDE = 13;
+  POWER = 14;
+  ROUND = 15;
+  SIN = 16;
+  COS = 17;
+  TAN = 18;
+  EXP = 19;
+  LN = 20;
+}
+
+message Expression {
+  oneof core {
+    ApplyExpression apply = 1;
+    Function function = 2;
+    int32 variable = 3;
+    double value = 4;
+    bool is_placeholder = 5;
+  }
+}
+
+message ApplyExpression {
+  Function function = 1;
+  repeated Expression parameters = 2;
+}
+
+message Assignment {
+  int32 variable = 1;
+  Expression value = 2;
+}

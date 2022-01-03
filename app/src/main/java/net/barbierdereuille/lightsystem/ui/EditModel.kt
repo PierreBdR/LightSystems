@@ -1,5 +1,5 @@
 package net.barbierdereuille.lightsystem.ui
-
+/*
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TextField
@@ -45,10 +44,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import net.barbierdereuille.lightsystem.LightSystemsTag
 import net.barbierdereuille.lightsystem.workers.DeleteModelWorker
@@ -77,8 +73,8 @@ fun EditModel(model: Model?) {
 
       EditableField(
         name = R.string.new_model_axiom,
-        value = editedModel.axiom,
-        onValueChange = { editedModel = editedModel.copy(axiom = it) })
+        value = editedModel.start,
+        onValueChange = { editedModel = editedModel.copy(start = it) })
 
       editedModel.rules?.let {
         EditRules(it, modelState)
@@ -345,7 +341,7 @@ private fun PreviewEditModel() {
       EditModel(
         Model(
           name = "Test model",
-          axiom = "A",
+          start = "A",
           rules = listOf(
             Rule("A", "AB"),
             Rule("B", "BA")
@@ -356,3 +352,4 @@ private fun PreviewEditModel() {
   }
 }
 
+*/

@@ -5,6 +5,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.10'
     id 'kotlin-parcelize'
+    id 'com.google.protobuf'
 }
 
 android {
@@ -82,6 +83,30 @@ android {
 //    }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protoBufferVersion"
+    }
+    plugins {
+        javalite {
+            artifact = "com.google.protobuf:protoc-gen-javalite:$protoBufferVersion"
+        }
+    }
+// this is a task which wil generate classes for our proto files
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                java {
+                    option "lite"
+                }
+                kotlin {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     def roomVersion = "2.4.0"
     def workVersion = '2.7.1'
@@ -114,10 +139,14 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1"
     implementation "androidx.constraintlayout:constraintlayout:2.1.2"
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02"
+    implementation "com.google.protobuf:protobuf-kotlin-lite:$protoBufferVersion"
 
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
 
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.jetbrains.kotlin:kotlin-test"
+    testImplementation "com.google.truth:truth:1.0.1"
+    testImplementation "com.google.truth.extensions:truth-proto-extension:1.1.3"
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

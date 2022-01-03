@@ -12,5 +12,5 @@ import net.barbierdereuille.lightsystem.data.Repository
 class ModelsViewModel @Inject internal constructor(private val repository: Repository) : ViewModel() {
   val models: LiveData<List<Model>> = repository.allModels().asLiveData()
 
-  fun resolvedModel(modelId: Long) = repository.resolveModel(modelId).asLiveData()
+//  fun resolvedModel(modelId: Long) = repository.resolveModel(modelId).asLiveData()
 }

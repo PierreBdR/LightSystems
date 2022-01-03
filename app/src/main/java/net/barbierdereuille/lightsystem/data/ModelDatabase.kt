@@ -14,7 +14,7 @@ import javax.inject.Singleton
 import net.barbierdereuille.lightsystem.workers.SeedDatabaseWorker
 
 @Database(
-  entities = [ModelDescription::class, RuleDefinition::class, ModelRule::class],
+  entities = [ModelDescription::class],
   version = 1,
   exportSchema = false
 )

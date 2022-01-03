@@ -10,15 +10,10 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import dagger.Lazy
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import net.barbierdereuille.lightsystem.LightSystemsTag
-import net.barbierdereuille.lightsystem.data.Model
-import net.barbierdereuille.lightsystem.data.ModelDao
-import net.barbierdereuille.lightsystem.data.ModelDatabase
 import net.barbierdereuille.lightsystem.data.Repository
-import net.barbierdereuille.lightsystem.data.rules
 
 @HiltWorker
 class SeedDatabaseWorker @AssistedInject constructor(
@@ -32,10 +27,11 @@ class SeedDatabaseWorker @AssistedInject constructor(
       if(inputData.getBoolean(RESET_DB, false)) {
         repository.clearAll()
       }
+    /*
       listOf(
         Model(
           name = "Anabeana",
-          axiom = "R",
+          start = "R",
           rules = rules(
             "r" to "R",
             "l" to "L",
@@ -45,7 +41,7 @@ class SeedDatabaseWorker @AssistedInject constructor(
         ),
         Model(
           name = "RuleTest",
-          axiom = "SOME TexT",
+          start = "SOME TexT",
           rules = rules(
             "sh" to "Some rules",
             "longer" to "fine",
@@ -55,7 +51,7 @@ class SeedDatabaseWorker @AssistedInject constructor(
       ).forEach {
         Log.i(LightSystemsTag, "Adding ${it.name}")
         repository.addModel(it)
-      }
+      }*/
     } catch (t: Throwable) {
       Log.e(LightSystemsTag, "Error seeding database", t)
       return Result.failure()
