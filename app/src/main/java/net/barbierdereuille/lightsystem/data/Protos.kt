@@ -1,6 +1,5 @@
 package net.barbierdereuille.lightsystem.data
 
-import kotlin.math.exp
 import net.barbierdereuille.lightsystem.functions.Add
 import net.barbierdereuille.lightsystem.functions.And
 import net.barbierdereuille.lightsystem.functions.Cos
@@ -41,6 +40,7 @@ typealias SymbolProto = net.barbierdereuille.lightsystem.proto.Symbol
 typealias RuleProto = net.barbierdereuille.lightsystem.proto.Rule
 typealias MatchingSymbolProto = net.barbierdereuille.lightsystem.proto.MatchingSymbol
 typealias ExpressionProto = net.barbierdereuille.lightsystem.proto.Expression
+typealias CoreCase = net.barbierdereuille.lightsystem.proto.Expression.CoreCase
 typealias BoundSymbolProto = net.barbierdereuille.lightsystem.proto.BoundSymbol
 typealias AssignmentProto = net.barbierdereuille.lightsystem.proto.Assignment
 
@@ -51,7 +51,20 @@ fun Model.toProto(): ModelProto {
     symbols += data.symbols.map { it.toProto() }
     start += data.start.map { it.toProto() }
     rules += data.rules.map { it.toProto() }
+    decompositions += data.decompositions.map { it.toProto() }
   }
+}
+
+fun ModelProto.toModel(id: Long = Model.NO_ID): Model {
+  val symbols = symbolsList.map { it.toModel() }
+  return Model(
+    name = name,
+    symbols = symbols,
+    start = startList.map { it.toModel(symbols) },
+    rules = rulesList.map { it.toModel(symbols) },
+    decompositions = decompositionsList.map { it.toModel(symbols) },
+    id = id,
+  )
 }
 
 fun Symbol.toProto(): SymbolProto {
@@ -63,13 +76,26 @@ fun Symbol.toProto(): SymbolProto {
   }
 }
 
-fun ResolvedSymbols.toProto(): ResolvedSymbolProto {
+fun SymbolProto.toModel(): Symbol =
+  Symbol(
+    id = id,
+    name = name,
+    arity = arity,
+  )
+
+fun ResolvedSymbol.toProto(): ResolvedSymbolProto {
   val data = this
   return resolvedSymbol {
     symbolId = data.symbol.id
     parameters += data.values
   }
 }
+
+fun ResolvedSymbolProto.toModel(symbols: List<Symbol>): ResolvedSymbol =
+  ResolvedSymbol(
+    symbol = symbols[symbolId],
+    values = parametersList,
+  )
 
 fun Rule.toProto(): RuleProto {
   val data = this
@@ -84,6 +110,19 @@ fun Rule.toProto(): RuleProto {
   }
 }
 
+fun RuleProto.toModel(symbols: List<Symbol>): Rule {
+  val variables = variablesList.mapIndexed { index, name -> Variable(name = name, index = index) }
+  return Rule(
+    variables = variablesList,
+    lhs = lhsList.map { it.toModel(symbols, variables) },
+    rhs = rhsList.map { it.toModel(symbols, variables) },
+    leftContext = leftContextList.map { it.toModel(symbols, variables) },
+    rightContext = rightContextList.map { it.toModel(symbols, variables) },
+    condition = condition.toModel(variables),
+    block = blockList.map { it.toModel(variables) }
+  )
+}
+
 fun Assignment.toProto(): AssignmentProto {
   val data = this
   return assignment {
@@ -92,6 +131,12 @@ fun Assignment.toProto(): AssignmentProto {
   }
 }
 
+fun AssignmentProto.toModel(variables: List<Variable>): Assignment =
+  Assignment(
+    variable = variables[variable],
+    value = value.toModel(variables),
+  )
+
 fun BoundSymbol.toProto(): BoundSymbolProto {
   val data = this
   return boundSymbol {
@@ -99,6 +144,12 @@ fun BoundSymbol.toProto(): BoundSymbolProto {
     parameters += data.boundTo.map { it.toBoundParameter() }
   }
 }
+
+fun BoundSymbolProto.toModel(symbols: List<Symbol>, variables: List<Variable>) =
+  BoundSymbol(
+    symbol = symbols[symbolId],
+    boundTo = parametersList.map { it.toModel(variables) }
+  )
 
 fun SimpleExpression.toBoundParameter(): BoundParameter {
   val data = this
@@ -111,6 +162,14 @@ fun SimpleExpression.toBoundParameter(): BoundParameter {
   }
 }
 
+fun BoundParameter.toModel(variables: List<Variable>) =
+  when (bindingCase) {
+    BoundParameter.BindingCase.VALUE -> Value(value)
+    BoundParameter.BindingCase.VARIABLE -> variables[variable]
+    BoundParameter.BindingCase.IS_PLACEHOLDER -> Placeholder
+    else -> error("Unknown bindingCase for BoundParameter: $bindingCase")
+  }
+
 fun MatchingSymbol.toProto(): MatchingSymbolProto {
   val data = this
   return matchingSymbol {
@@ -119,42 +178,60 @@ fun MatchingSymbol.toProto(): MatchingSymbolProto {
   }
 }
 
+fun MatchingSymbolProto.toModel(symbols: List<Symbol>, variables: List<Variable>) =
+  MatchingSymbol(
+    symbol = symbols[symbolId],
+    variables = variablesList.map { variables[it] },
+  )
+
 fun Expression.toProto(): ExpressionProto {
   return expression {
     when (this@toProto) {
       is Variable -> variable = index
       is Value -> value = this@toProto.value
-      is Func -> function = toFuncProto()
       is Apply -> apply = toApplyProto()
       is Placeholder -> isPlaceholder = true
     }
   }
 }
 
-fun Func.toFuncProto(): Function =
-  when (this) {
-    is Equal -> Function.EQUAL
-    is Different -> Function.DIFFERENT
-    is GreaterThan -> Function.GREATER_THAN
-    is LessThan -> Function.LESS_THAN
-    is GreaterOrEqual -> Function.GREATER_OR_EQUAL
-    is LessOrEqual -> Function.LESS_OR_EQUAL
-    is And -> Function.AND
-    is Or -> Function.OR
-    is Not -> Function.NOT
-    is Add -> Function.ADD
-    is Subtract -> Function.SUBTRACT
-    is Multiply -> Function.MULTIPLY
-    is Divide -> Function.DIVIDE
-    is Power -> Function.POWER
-    is Round -> Function.ROUND
-    is Sin -> Function.SIN
-    is Cos -> Function.COS
-    is Tan -> Function.TAN
-    is Exp -> Function.EXP
-    is Ln -> Function.LN
-    else -> error("Unknown function: $this")
+fun ExpressionProto.toModel(variables: List<Variable>): Expression =
+  when(coreCase) {
+    CoreCase.APPLY -> apply.toModel(variables)
+    CoreCase.VALUE -> Value(value)
+    CoreCase.VARIABLE -> variables[variable]
+    CoreCase.IS_PLACEHOLDER -> Placeholder
+    else -> error("Unknown Expression core case: $coreCase")
   }
+
+private val FuncToFuncProto = mapOf(
+  Equal to Function.EQUAL,
+  Different to Function.DIFFERENT,
+  GreaterThan to Function.GREATER_THAN,
+  LessThan to Function.LESS_THAN,
+  GreaterOrEqual to Function.GREATER_OR_EQUAL,
+  LessOrEqual to Function.LESS_OR_EQUAL,
+  And to Function.AND,
+  Or to Function.OR,
+  Not to Function.NOT,
+  Add to Function.ADD,
+  Subtract to Function.SUBTRACT,
+  Multiply to Function.MULTIPLY,
+  Divide to Function.DIVIDE,
+  Power to Function.POWER,
+  Round to Function.ROUND,
+  Sin to Function.SIN,
+  Cos to Function.COS,
+  Tan to Function.TAN,
+  Exp to Function.EXP,
+  Ln to Function.LN,
+)
+
+private val FuncProtoToFunc = FuncToFuncProto.entries.associate { it.value to it.key }
+
+fun Func.toFuncProto(): Function = FuncToFuncProto[this] ?: error("Unknown function: $this")
+
+fun Function.toFunc(): Func = FuncProtoToFunc[this] ?: error("Unknown function: $this")
 
 fun Apply.toApplyProto(): ApplyExpression {
   val data = this
@@ -163,3 +240,9 @@ fun Apply.toApplyProto(): ApplyExpression {
     parameters += data.parameters.map { it.toProto() }
   }
 }
+
+fun ApplyExpression.toModel(variables: List<Variable>) =
+  Apply(
+    function = function.toFunc(),
+    parameters = parametersList.map { it.toModel(variables) },
+  )

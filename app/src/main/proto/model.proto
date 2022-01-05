@@ -10,6 +10,7 @@ message Model {
   repeated Symbol symbols = 2;
   repeated ResolvedSymbol start = 3;
   repeated Rule rules = 4;
+  repeated Rule decompositions = 5;
 }
 
 // L-System symbol
@@ -96,10 +97,9 @@ enum Function {
 message Expression {
   oneof core {
     ApplyExpression apply = 1;
-    Function function = 2;
-    int32 variable = 3;
-    double value = 4;
-    bool is_placeholder = 5;
+    int32 variable = 2;
+    double value = 3;
+    bool is_placeholder = 4;
   }
 }
 

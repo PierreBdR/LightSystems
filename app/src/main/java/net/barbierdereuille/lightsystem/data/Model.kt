@@ -4,12 +4,21 @@ import androidx.annotation.IntRange
 
 data class Model(
   val name: String,
-  val start: List<ResolvedSymbols>,
+  val start: List<ResolvedSymbol>,
   val symbols: List<Symbol>,
-  val decompositions: List<DecompositionRule>,
+  val decompositions: List<Rule>,
   val rules: List<Rule>,
   val id: Long = NO_ID,
 ) {
+  init {
+    decompositions.forEach {
+      require(
+        it.leftContext.isEmpty() && it.rightContext.isEmpty() && it.lhs.size == 1
+      ) {
+        "A decomposition rule cannot have a context and must only decompose a single variable."
+      }
+    }
+  }
   companion object {
     const val NO_ID: Long = 0
   }
@@ -21,7 +30,7 @@ data class Symbol(
   @IntRange(from = 0) val arity: Int,
 )
 
-data class ResolvedSymbols(
+data class ResolvedSymbol(
   val symbol: Symbol,
   val values: List<Double> = emptyList()
 ) {
@@ -34,10 +43,6 @@ data class BoundSymbol(
 ) {
   constructor(symbol: Symbol, boundTo: SimpleExpression): this(symbol, listOf(boundTo))
 }
-
-data class DecompositionRule(
-  val symbol: Symbol,
-)
 
 data class Rule(
   val lhs: List<MatchingSymbol>,
